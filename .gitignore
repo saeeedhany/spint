@@ -1,0 +1,5 @@
+build/
+spint
+spint-debug
+*.o
+*.d
