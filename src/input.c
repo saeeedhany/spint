@@ -329,7 +329,7 @@ static void on_key_down(App *a, SDL_KeyboardEvent *k)
         return;
     }
     if (key == SDLK_F1) {
-        a->show_help = !a->show_help;
+        if (!k->repeat) a->show_help = !a->show_help;
         a->redraw = true;
         return;
     }
@@ -344,14 +344,14 @@ static void on_key_down(App *a, SDL_KeyboardEvent *k)
             app_redo(a);
             break;
         case SDLK_s:
-            app_save(a, shift);
+            if (!k->repeat) app_save(a, shift);
             break;
         case SDLK_n:
-            app_clear(a);
+            if (!k->repeat) app_clear(a);
             break;
         case SDLK_q:
         case SDLK_w:
-            app_request_quit(a);
+            if (!k->repeat) app_request_quit(a);
             break;
         case SDLK_0:
         case SDLK_KP_0:
@@ -373,6 +373,9 @@ static void on_key_down(App *a, SDL_KeyboardEvent *k)
         return;
     }
     if (a->drag == DRAG_PAINT) return;
+    if (k->repeat && key != SDLK_LEFTBRACKET && key != SDLK_RIGHTBRACKET && key != SDLK_EQUALS &&
+        key != SDLK_PLUS && key != SDLK_KP_PLUS && key != SDLK_MINUS && key != SDLK_KP_MINUS)
+        return;
 
     switch (key) {
     case SDLK_b: app_set_tool(a, TOOL_BRUSH); break;

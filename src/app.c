@@ -267,6 +267,7 @@ bool app_open(App *a, const char *path)
     }
     history_cancel(&a->history);
     a->drag = DRAG_NONE;
+    a->has_last = false;
     canvas_adopt(&a->canvas, px, w, h);
     a->document++;
     if (!history_reset(&a->history) || !make_texture(a)) {
@@ -307,6 +308,8 @@ static void timestamp_name(char *out, size_t cap, const char *dir_of)
     const char *slash = dir_of ? strrchr(dir_of, '/') : NULL;
     int dir_len = slash ? (int)(slash - dir_of + 1) : 0;
     snprintf(out, cap, "%.*sspint-%s.png", dir_len, dir_of ? dir_of : "", stamp);
+    for (int i = 2; file_exists(out) && i < 1000; i++)
+        snprintf(out, cap, "%.*sspint-%s-%d.png", dir_len, dir_of ? dir_of : "", stamp, i);
 }
 
 void app_save(App *a, bool new_name)

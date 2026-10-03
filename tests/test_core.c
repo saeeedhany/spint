@@ -149,13 +149,13 @@ static void test_history(void)
     uint32_t *s0 = malloc(n * 4), *s1 = malloc(n * 4), *s2 = malloc(n * 4);
     memcpy(s0, c.px, n * 4);
 
-    CHECK(history_state(&h) == 0);
+    unsigned id0 = history_state(&h);
     history_begin(&h);
     draw_capsule(&c, 5, 5, 290, 190, 12, BLACK);
     history_commit(&h);
     memcpy(s1, c.px, n * 4);
     unsigned id1 = history_state(&h);
-    CHECK(id1 != 0);
+    CHECK(id1 != id0);
 
     history_begin(&h);
     CHECK(draw_flood(&c, 290, 5, RED));
@@ -167,6 +167,7 @@ static void test_history(void)
     CHECK(history_state(&h) == id1);
     CHECK(history_undo(&h));
     CHECK(same(c.px, s0, n));
+    CHECK(history_state(&h) == id0);
     CHECK(!history_undo(&h));
     CHECK(history_redo(&h));
     CHECK(same(c.px, s1, n));
@@ -205,6 +206,7 @@ static void test_history_limit(void)
     History h;
     CHECK(canvas_init(&c, 640, 640, WHITE));
     CHECK(history_init(&h, &c, 4u << 20));
+    unsigned id0 = history_state(&h);
     for (int i = 0; i < 20; i++) {
         history_begin(&h);
         canvas_fill(&c, i & 1 ? BLACK : WHITE);
@@ -215,6 +217,7 @@ static void test_history_limit(void)
     while (history_undo(&h)) {
     }
     CHECK(h.undo.count == 0);
+    CHECK(history_state(&h) != id0);
     history_free(&h);
     canvas_free(&c);
 }
