@@ -88,6 +88,7 @@ static bool drop_oldest(History *h)
 {
     HistoryStack *s = &h->undo;
     if (s->count == 0) return false;
+    h->base_id = s->items[0].id;
     h->bytes -= entry_bytes(&s->items[0]);
     entry_free(&s->items[0]);
     memmove(s->items, s->items + 1, (size_t)(s->count - 1) * sizeof *s->items);
@@ -119,6 +120,7 @@ bool history_reset(History *h)
     stack_clear(h, &h->undo);
     stack_clear(h, &h->redo);
     h->bytes = 0;
+    h->base_id = h->next_id++;
     free(h->slot);
     h->cols = (h->canvas->w + TILE - 1) / TILE;
     h->rows = (h->canvas->h + TILE - 1) / TILE;
@@ -199,7 +201,7 @@ void history_commit(History *h)
         release_pending(h);
         stack_clear(h, &h->undo);
         stack_clear(h, &h->redo);
-        h->next_id++;
+        h->base_id = h->next_id++;
         return;
     }
     if (h->pending.count == 0) {
@@ -249,5 +251,5 @@ bool history_redo(History *h)
 
 unsigned history_state(const History *h)
 {
-    return h->undo.count ? h->undo.items[h->undo.count - 1].id : 0;
+    return h->undo.count ? h->undo.items[h->undo.count - 1].id : h->base_id;
 }

@@ -32,6 +32,7 @@ typedef struct History {
     bool failed;
     HistoryStack undo, redo;
     size_t bytes, limit;
+    unsigned base_id;
     unsigned next_id;
 } History;
 
